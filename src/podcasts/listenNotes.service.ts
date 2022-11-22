@@ -86,10 +86,14 @@ export class ListenNotesService {
     )
   }
 
-  getPodcast(podcastId: string) {
+  getPodcast(podcastId: string, nextEpisodePubDate?: string) {
     return lastValueFrom(
       this.httpService
-        .get<IPodcastDetails>(`/podcasts/${podcastId}`)
+        .get<IPodcastDetails>(
+          `/podcasts/${podcastId}${
+            nextEpisodePubDate ? `?next_episode_pub_date=${nextEpisodePubDate}}` : ''
+          }`,
+        )
         .pipe(map(res => res.data))
         .pipe(
           catchError(() => {
@@ -107,19 +111,6 @@ export class ListenNotesService {
         .pipe(
           catchError(() => {
             throw new InternalServerErrorException('Could not fetch podcast recommendations')
-          }),
-        ),
-    )
-  }
-
-  getEpisodes(podcastId: string, nextEpisodePubDate: number) {
-    return lastValueFrom(
-      this.httpService
-        .get<IPodcastDetails>(`/podcasts/${podcastId}?next_episode_pub_date=${nextEpisodePubDate}`)
-        .pipe(map(res => res.data))
-        .pipe(
-          catchError(() => {
-            throw new InternalServerErrorException('Could not fetch episodes')
           }),
         ),
     )
