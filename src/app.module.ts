@@ -19,6 +19,8 @@ import { User } from './modules/users/user.model'
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE_NAME'),
         models: [User],
+        synchronize: true,
+        autoLoadModels: true,
       }),
       inject: [ConfigService],
     }),

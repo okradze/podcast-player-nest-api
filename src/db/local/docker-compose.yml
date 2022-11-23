@@ -1,0 +1,23 @@
+version: '2.12'
+services:
+  db:
+    image: postgres:14.6
+    restart: always
+    ports:
+      - '6432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - '5000:80'
+volumes:
+  db:
+    driver: local
