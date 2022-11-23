@@ -9,8 +9,8 @@ import { compareHashToPassword, hashPassword } from './auth.utils'
 export class AuthService {
   constructor(@InjectModel(User) private userModel: typeof User) {}
 
-  async signup(dto: SignupDto) {
-    const { email, password } = dto
+  async signup(body: SignupDto) {
+    const { email, password } = body
 
     const user = await this.userModel.findOne({
       where: { email },
@@ -20,19 +20,19 @@ export class AuthService {
 
     const hashedPassword = await hashPassword(password)
 
-    return this.userModel.create({ ...dto, password: hashedPassword })
+    return this.userModel.create({ ...body, password: hashedPassword })
   }
 
-  async signin(dto: SigninDto) {
+  async signin(body: SigninDto) {
     const user = await this.userModel.findOne({
       where: {
-        email: dto.email,
+        email: body.email,
       },
     })
 
     if (!user) throw new UnauthorizedException('Invalid credentials')
 
-    const isMatch = await compareHashToPassword(user.password, dto.password)
+    const isMatch = await compareHashToPassword(user.password, body.password)
     if (!isMatch) throw new UnauthorizedException('Invalid credentials')
 
     return user
