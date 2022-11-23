@@ -4,7 +4,7 @@ import { User } from './user.model'
 import { SignupDto } from './dto/signup-dto'
 
 @Injectable()
-export class UsersService {
+export class AuthService {
   constructor(@InjectModel(User) private userModel: typeof User) {}
 
   async signup(signupDto: SignupDto) {
