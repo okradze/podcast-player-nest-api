@@ -18,7 +18,6 @@ export class PodcastsController {
 
   @Get(':id')
   getPodcast(@Param('id') id: string, @Query('nextEpisodePubDate') nextEpisodePubDate?: string) {
-    console.log({ id, nextEpisodePubDate })
     return this.listenNotesService.getPodcast(id, nextEpisodePubDate)
   }
 
