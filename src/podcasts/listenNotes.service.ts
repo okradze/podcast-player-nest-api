@@ -87,13 +87,13 @@ export class ListenNotesService {
   }
 
   getPodcast(podcastId: string, nextEpisodePubDate?: string) {
+    const url = `/podcasts/${podcastId}${
+      nextEpisodePubDate ? `?next_episode_pub_date=${nextEpisodePubDate}` : ''
+    }`
+
     return lastValueFrom(
       this.httpService
-        .get<IPodcastDetails>(
-          `/podcasts/${podcastId}${
-            nextEpisodePubDate ? `?next_episode_pub_date=${nextEpisodePubDate}}` : ''
-          }`,
-        )
+        .get<IPodcastDetails>(url)
         .pipe(map(res => res.data))
         .pipe(
           catchError(() => {
