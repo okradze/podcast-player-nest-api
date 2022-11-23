@@ -3,9 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { SequelizeModule } from '@nestjs/sequelize'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { UsersModule } from './users/users.module'
-import { PodcastsModule } from './podcasts/podcasts.module'
-import { User } from './users/user.model'
+import { UsersModule } from './modules/users/users.module'
+import { PodcastsModule } from './modules/podcasts/podcasts.module'
+import { User } from './modules/users/user.model'
 
 @Module({
   imports: [
