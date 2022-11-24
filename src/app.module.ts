@@ -24,7 +24,6 @@ import { User } from './modules/auth/user.model'
       }),
       inject: [ConfigService],
     }),
-
     AuthModule,
     PodcastsModule,
   ],

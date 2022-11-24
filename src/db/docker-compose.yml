@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
-      - db:/var/lib/postgresql/data
+      - podcast-player-db:/var/lib/postgresql/data
   pgadmin:
     image: dpage/pgadmin4
     restart: always
@@ -19,5 +19,4 @@ services:
     ports:
       - '5000:80'
 volumes:
-  db:
-    driver: local
+  podcast-player-db:
