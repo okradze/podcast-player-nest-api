@@ -1,4 +1,4 @@
-import { Table, Column, Model } from 'sequelize-typescript'
+import { Table, Column, Model, AllowNull } from 'sequelize-typescript'
 
 @Table
 export class User extends Model<User> {
@@ -10,4 +10,8 @@ export class User extends Model<User> {
 
   @Column
   password: string
+
+  @Column
+  @AllowNull
+  refreshToken: string
 }
