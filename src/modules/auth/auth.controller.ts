@@ -2,9 +2,9 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common'
 import { SignupDto } from './dto/signup.dto'
 import { AuthService } from './auth.service'
 import { SigninDto } from './dto/signin.dto'
-import { AccessTokenGuard } from './guards/accessToken.guard'
-import { RefreshTokenGuard } from './guards/refreshToken.guard'
-import { CurrentUser } from './decorators/user.decorator'
+import { AccessTokenGuard } from './guards/access-token.guard'
+import { RefreshTokenGuard } from './guards/refresh-token.guard'
+import { CurrentUser } from './decorators/current-user.decorator'
 
 @Controller('auth')
 export class AuthController {
@@ -29,7 +29,7 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   @Post('refresh')
   refreshTokens(@CurrentUser() user) {
-    const { id, refreshToken } = user
-    return this.authService.refreshTokens(id, refreshToken)
+    const { userId, refreshToken } = user
+    return this.authService.refreshTokens(userId, refreshToken)
   }
 }

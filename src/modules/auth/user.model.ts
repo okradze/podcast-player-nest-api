@@ -11,7 +11,7 @@ export class User extends Model<User> {
   @Column
   password: string
 
-  @Column
   @AllowNull
+  @Column
   refreshToken: string
 }

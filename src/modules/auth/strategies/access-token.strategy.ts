@@ -3,6 +3,12 @@ import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import { ConfigService } from '@nestjs/config'
 
+interface AccessTokenPayload {
+  userId: number
+  iat: number
+  exp: number
+}
+
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(private readonly configService: ConfigService) {
@@ -13,8 +19,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
     })
   }
 
-  validate(payload: string) {
-    console.log(payload)
+  validate(payload: AccessTokenPayload) {
     return payload
   }
 }
