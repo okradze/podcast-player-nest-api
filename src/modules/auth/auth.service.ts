@@ -62,7 +62,6 @@ export class AuthService {
     await this.updateUserRefreshToken(newUser.id, refreshToken)
 
     return {
-      user: newUser,
       accessToken,
       refreshToken,
     }
@@ -84,7 +83,6 @@ export class AuthService {
     await this.updateUserRefreshToken(user.id, refreshToken)
 
     return {
-      user,
       accessToken,
       refreshToken,
     }
@@ -112,5 +110,10 @@ export class AuthService {
     await this.updateUserRefreshToken(user.id, tokens.refreshToken)
 
     return tokens
+  }
+
+  async me(userId: number) {
+    const user = await this.userModel.findOne({ where: { id: userId } })
+    return user
   }
 }
