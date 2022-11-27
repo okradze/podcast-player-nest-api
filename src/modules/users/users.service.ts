@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import { Attributes, Optional } from 'sequelize'
-import { Col, Fn, Literal, NullishPropertiesOf } from 'sequelize/types/utils'
+import { Attributes } from 'sequelize'
+import { Col, Fn, Literal } from 'sequelize/types/utils'
+import { UserDto } from './dto/user.dto'
 import { User } from './user.model'
 
 @Injectable()
@@ -20,7 +21,7 @@ export class UsersService {
     })
   }
 
-  create(values: Optional<User, NullishPropertiesOf<User>>) {
+  create(values: UserDto) {
     return this.userModel.create(values)
   }
 
