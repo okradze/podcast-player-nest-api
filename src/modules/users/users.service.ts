@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import { Attributes } from 'sequelize'
-import { Col, Fn, Literal } from 'sequelize/types/utils'
-import { UserDto } from './dto/user.dto'
+import { CreateUserDto } from './dto/create-user.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
 import { User } from './user.model'
 
 @Injectable()
@@ -21,16 +20,11 @@ export class UsersService {
     })
   }
 
-  create(values: UserDto) {
+  create(values: CreateUserDto) {
     return this.userModel.create(values)
   }
 
-  update(
-    id: number,
-    values: {
-      [key in keyof Attributes<User>]?: Attributes<User>[key] | Fn | Col | Literal
-    },
-  ) {
+  update(id: number, values: Partial<UpdateUserDto>) {
     return this.userModel.update(values, { where: { id } })
   }
 }
