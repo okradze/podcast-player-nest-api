@@ -4,18 +4,17 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common'
-import { InjectModel } from '@nestjs/sequelize'
 import { JwtService } from '@nestjs/jwt'
-import { User } from './user.model'
-import { SignupDto } from './dto/signup.dto'
-import { SigninDto } from './dto/signin.dto'
-import { compareHashToData, hashData } from './auth.utils'
 import { ConfigService } from '@nestjs/config'
+import { UsersService } from '../users/users.service'
+import { compareHashToData, hashData } from './auth.utils'
+import { SigninDto } from './dto/signin.dto'
+import { SignupDto } from './dto/signup.dto'
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User) private readonly userModel: typeof User,
+    private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
@@ -43,21 +42,18 @@ export class AuthService {
 
   async updateUserRefreshToken(userId: number, refreshToken: string) {
     const hashedToken = await hashData(refreshToken)
-    await this.userModel.update({ refreshToken: hashedToken }, { where: { id: userId } })
+    await this.usersService.update(userId, { refreshToken: hashedToken })
   }
 
   async signup(body: SignupDto) {
     const { email, password } = body
 
-    const user = await this.userModel.findOne({
-      where: { email },
-    })
-
+    const user = await this.usersService.findByEmail(email)
     if (user) throw new BadRequestException('Email in use')
 
     const hashedPassword = await hashData(password)
+    const newUser = await this.usersService.create({ ...body, password: hashedPassword })
 
-    const newUser = await this.userModel.create({ ...body, password: hashedPassword })
     const { accessToken, refreshToken } = await this.signTokens(newUser.id)
     await this.updateUserRefreshToken(newUser.id, refreshToken)
 
@@ -68,12 +64,7 @@ export class AuthService {
   }
 
   async signin(body: SigninDto) {
-    const user = await this.userModel.findOne({
-      where: {
-        email: body.email,
-      },
-    })
-
+    const user = await this.usersService.findByEmail(body.email)
     if (!user) throw new UnauthorizedException('Invalid credentials')
 
     const isMatch = await compareHashToData(user.password, body.password)
@@ -89,18 +80,11 @@ export class AuthService {
   }
 
   async signout(userId: number) {
-    await this.userModel.update(
-      { refreshToken: null },
-      {
-        where: {
-          id: userId,
-        },
-      },
-    )
+    await this.usersService.update(userId, { refreshToken: null })
   }
 
   async refreshTokens(userId: number, refreshToken: string) {
-    const user = await this.userModel.findOne({ where: { id: userId } })
+    const user = await this.usersService.findById(userId)
     if (!user || !user.refreshToken) throw new ForbiddenException('Access Denied')
 
     const isMatch = await compareHashToData(user.refreshToken, refreshToken)
@@ -113,7 +97,7 @@ export class AuthService {
   }
 
   async me(userId: number) {
-    const user = await this.userModel.findOne({ where: { id: userId } })
+    const user = await this.usersService.findById(userId)
     return user
   }
 }

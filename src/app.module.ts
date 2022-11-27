@@ -5,7 +5,8 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AuthModule } from './modules/auth/auth.module'
 import { PodcastsModule } from './modules/podcasts/podcasts.module'
-import { User } from './modules/auth/user.model'
+import { UsersModule } from './modules/users/users.module'
+import { User } from './modules/users/user.model'
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { User } from './modules/auth/user.model'
       inject: [ConfigService],
     }),
     AuthModule,
+    UsersModule,
     PodcastsModule,
   ],
   controllers: [AppController],
