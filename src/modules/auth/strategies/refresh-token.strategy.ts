@@ -13,7 +13,10 @@ export interface RefreshTokenPayload extends AccessTokenPayload {
 export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(private readonly configService: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        RefreshTokenStrategy.extractJwt,
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ]),
       ignoreExpiration: false,
       secretOrKey: configService.get('JWT_REFRESH_SECRET'),
       passReqToCallback: true,
@@ -24,5 +27,11 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refres
     console.log(payload)
     const refreshToken = req.get('Authorization').replace('Bearer', '').trim()
     return { ...payload, refreshToken }
+  }
+
+  private static extractJwt(req: Request) {
+    const jwt = req.cookies['refreshToken']
+    if (!jwt || jwt.length === 0) return null
+    return jwt
   }
 }
