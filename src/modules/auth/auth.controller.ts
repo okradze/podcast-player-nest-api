@@ -1,12 +1,12 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common'
-import { Request, Response } from 'express'
+import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common'
+import { Response } from 'express'
 import { SignupDto } from './dto/signup.dto'
 import { AuthService } from './auth.service'
 import { SigninDto } from './dto/signin.dto'
 import { AccessTokenGuard } from './guards/access-token.guard'
 import { RefreshTokenGuard } from './guards/refresh-token.guard'
 import { CurrentUser } from './decorators/current-user.decorator'
-import { RefreshTokenPayload } from './strategies/refresh-token.strategy'
+import { RequestUser } from './strategies/refresh-token.strategy'
 import { AccessTokenPayload } from './strategies/access-token.strategy'
 import { clearTokensFromCookies, setTokensToCookies } from './auth.utils'
 
@@ -42,7 +42,7 @@ export class AuthController {
   @Post('refresh')
   async refreshTokens(
     @Res({ passthrough: true }) res: Response,
-    @CurrentUser() user: RefreshTokenPayload,
+    @CurrentUser() user: RequestUser,
   ) {
     const { userId, refreshToken } = user
     const tokens = await this.authService.refreshTokens(userId, refreshToken)
@@ -51,7 +51,7 @@ export class AuthController {
 
   @UseGuards(AccessTokenGuard)
   @Get('me')
-  me(@Req() req: Request) {
-    // return this.authService.me(user.userId)
+  me(@CurrentUser() user: RequestUser) {
+    return this.authService.me(user.userId)
   }
 }

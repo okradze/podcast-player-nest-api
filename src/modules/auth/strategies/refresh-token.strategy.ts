@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config'
 import { Request } from 'express'
 import { AccessTokenPayload } from './access-token.strategy'
 
-export interface RefreshTokenPayload extends AccessTokenPayload {
+export interface RequestUser extends AccessTokenPayload {
   refreshToken: string
 }
 
@@ -23,9 +23,9 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refres
     })
   }
 
-  validate(req: Request, payload: AccessTokenPayload): RefreshTokenPayload {
-    console.log(payload)
-    const refreshToken = req.get('Authorization').replace('Bearer', '').trim()
+  validate(req: Request, payload: AccessTokenPayload): RequestUser {
+    const refreshToken =
+      req.cookies['refreshToken'] || req.get('Authorization').replace('Bearer', '').trim()
     return { ...payload, refreshToken }
   }
 
