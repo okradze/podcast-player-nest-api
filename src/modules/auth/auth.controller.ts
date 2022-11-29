@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common'
+import { Request, Response } from 'express'
 import { SignupDto } from './dto/signup.dto'
 import { AuthService } from './auth.service'
 import { SigninDto } from './dto/signin.dto'
@@ -7,12 +8,7 @@ import { RefreshTokenGuard } from './guards/refresh-token.guard'
 import { CurrentUser } from './decorators/current-user.decorator'
 import { RefreshTokenPayload } from './strategies/refresh-token.strategy'
 import { AccessTokenPayload } from './strategies/access-token.strategy'
-import { Request, Response } from 'express'
-import {
-  clearTokensFromCookies,
-  setAccessTokenCookie,
-  setRefreshTokenCookie,
-} from './auth.utils'
+import { clearTokensFromCookies, setTokensToCookies } from './auth.utils'
 
 @Controller('auth')
 export class AuthController {
@@ -20,18 +16,16 @@ export class AuthController {
 
   @Post('signup')
   async signup(@Res({ passthrough: true }) res: Response, @Body() body: SignupDto) {
-    const tokens = await this.authService.signup(body)
-    setAccessTokenCookie(res, tokens.accessToken)
-    setRefreshTokenCookie(res, tokens.refreshToken)
-    return tokens
+    const { tokens, user } = await this.authService.signup(body)
+    setTokensToCookies(res, tokens)
+    return user
   }
 
   @Post('signin')
   async signin(@Res({ passthrough: true }) res: Response, @Body() body: SigninDto) {
-    const tokens = await this.authService.signin(body)
-    setAccessTokenCookie(res, tokens.accessToken)
-    setRefreshTokenCookie(res, tokens.refreshToken)
-    return tokens
+    const { tokens, user } = await this.authService.signin(body)
+    setTokensToCookies(res, tokens)
+    return user
   }
 
   @UseGuards(AccessTokenGuard)
@@ -52,10 +46,7 @@ export class AuthController {
   ) {
     const { userId, refreshToken } = user
     const tokens = await this.authService.refreshTokens(userId, refreshToken)
-    setAccessTokenCookie(res, tokens.accessToken)
-    setRefreshTokenCookie(res, tokens.refreshToken)
-
-    return tokens
+    setTokensToCookies(res, tokens)
   }
 
   @UseGuards(AccessTokenGuard)
