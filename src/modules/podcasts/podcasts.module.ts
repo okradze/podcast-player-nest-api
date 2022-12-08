@@ -4,6 +4,9 @@ import { HttpModule } from '@nestjs/axios'
 import { ListenNotesService } from './listenNotes.service'
 import { PodcastsController } from './podcasts.controller'
 import { PodcastsService } from './podcasts.service'
+import { SequelizeModule } from '@nestjs/sequelize'
+import { Podcast } from './models/podcast.model'
+import { FavoritePodcast } from './models/favorite-podcast.model'
 
 @Module({
   imports: [
@@ -16,6 +19,7 @@ import { PodcastsService } from './podcasts.service'
       }),
       inject: [ConfigService],
     }),
+    SequelizeModule.forFeature([Podcast, FavoritePodcast]),
   ],
   controllers: [PodcastsController],
   providers: [PodcastsService, ListenNotesService],
