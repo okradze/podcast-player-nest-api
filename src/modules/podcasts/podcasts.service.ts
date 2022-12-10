@@ -17,6 +17,7 @@ export class PodcastsService {
     return this.favoritePodcastModel.findAll({
       where: { userId },
       order: [['createdAt', 'DESC']],
+      include: Podcast,
     })
   }
 
@@ -45,6 +46,6 @@ export class PodcastsService {
 
     if (!podcast) throw new NotFoundException('Podcast not found')
 
-    return podcast.destroy()
+    await podcast.destroy()
   }
 }
