@@ -110,7 +110,9 @@ export class ListenNotesService {
         .pipe(map(res => res.data))
         .pipe(
           catchError(() => {
-            throw new InternalServerErrorException('Could not fetch podcast recommendations')
+            throw new InternalServerErrorException(
+              'Could not fetch podcast recommendations',
+            )
           }),
         ),
     )

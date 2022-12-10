@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { FavoritePodcast } from './models/favorite-podcast.model'
 import { Podcast } from './models/podcast.model'
@@ -22,6 +22,11 @@ export class PodcastsService {
 
   async addToFavorites(userId: number, podcastId: string) {
     const podcast = await this.podcastModel.findByPk(podcastId)
+    const favoritePodcast = await this.favoritePodcastModel.findOne({
+      where: { userId, podcastId },
+    })
+
+    if (favoritePodcast) throw new BadRequestException('Podcast is already in favorites')
 
     if (!podcast) {
       const { id, title, publisher, thumbnail } =

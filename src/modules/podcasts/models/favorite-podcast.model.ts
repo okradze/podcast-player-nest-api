@@ -9,7 +9,6 @@ export class FavoritePodcast extends Model<FavoritePodcast> {
   podcastId: string
 
   @BelongsTo(() => Podcast, 'podcastId')
-  @Column
   podcast: Podcast
 
   @ForeignKey(() => User)
@@ -17,6 +16,5 @@ export class FavoritePodcast extends Model<FavoritePodcast> {
   userId: number
 
   @BelongsTo(() => User, 'userId')
-  @Column
   user: User
 }
