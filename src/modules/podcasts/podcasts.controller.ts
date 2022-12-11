@@ -1,18 +1,7 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common'
+import { Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
 import { AccessTokenGuard } from '../auth/guards/access-token.guard'
 import { RequestUser } from '../auth/strategies/refresh-token.strategy'
-import { CreateFavoritePodcastDto } from './dto/create-favorite-podcast.dto'
-import { DeleteFavoritePodcastDto } from './dto/delete-favorite-podcast.dto'
 import { ListenNotesService } from './listenNotes.service'
 import { PodcastsService } from './podcasts.service'
 

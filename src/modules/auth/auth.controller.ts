@@ -47,6 +47,7 @@ export class AuthController {
     const { userId, refreshToken } = user
     const tokens = await this.authService.refreshTokens(userId, refreshToken)
     setTokensToCookies(res, tokens)
+    return tokens
   }
 
   @UseGuards(AccessTokenGuard)
