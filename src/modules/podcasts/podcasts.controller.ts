@@ -40,21 +40,15 @@ export class PodcastsController {
   }
 
   @UseGuards(AccessTokenGuard)
-  @Post('favorites')
-  addToFavorites(
-    @CurrentUser() user: RequestUser,
-    @Body() body: CreateFavoritePodcastDto,
-  ) {
-    return this.podcastsService.addToFavorites(user.userId, body.id)
+  @Post('favorites/:id')
+  addToFavorites(@CurrentUser() user: RequestUser, @Param('id') id: string) {
+    return this.podcastsService.addToFavorites(user.userId, id)
   }
 
   @UseGuards(AccessTokenGuard)
-  @Delete('favorites')
-  removeFromFavorites(
-    @CurrentUser() user: RequestUser,
-    @Body() body: DeleteFavoritePodcastDto,
-  ) {
-    return this.podcastsService.removeFromFavorites(user.userId, body.id)
+  @Delete('favorites/:id')
+  removeFromFavorites(@CurrentUser() user: RequestUser, @Param('id') id: string) {
+    return this.podcastsService.removeFromFavorites(user.userId, id)
   }
 
   @Get(':id')
