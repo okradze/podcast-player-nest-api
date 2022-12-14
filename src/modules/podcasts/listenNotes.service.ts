@@ -1,14 +1,18 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { HttpService } from '@nestjs/axios'
 import { catchError, map, lastValueFrom } from 'rxjs'
-import { transformBestPodcastData, transformCuratedPodcastsData } from './podcasts.utils'
+import {
+  transformBestPodcastData,
+  transformCuratedPodcastsData,
+  transformPodcastDetailsData,
+  transformRecommendationsData,
+} from './podcasts.utils'
 
 export interface IPodcast {
   id: string
   thumbnail: string
   title: string
   publisher: string
-  description: string
   isFavorite?: boolean
 }
 
@@ -32,7 +36,9 @@ export interface ICuratedPodcasts {
 
 export interface IPodcastDetails extends IPodcast {
   episodes: IEpisode[]
+  description: string
   next_episode_pub_date: number
+  total_episodes: number
 }
 
 export interface IEpisode {
@@ -69,9 +75,7 @@ export class ListenNotesService {
         .pipe(map(res => res.data))
         .pipe(map(transformBestPodcastData))
         .pipe(
-          catchError((err: any) => {
-            console.log(err)
-
+          catchError(() => {
             throw new InternalServerErrorException('Could not fetch best podcasts')
           }),
         ),
@@ -81,7 +85,7 @@ export class ListenNotesService {
   getCuratedPodcasts(page: string) {
     return lastValueFrom(
       this.httpService
-        .get<ICuratedPodcasts>(`curated_podcasts?page=${page}`)
+        .get<ICuratedPodcasts>(`/curated_podcasts?page=${page}`)
         .pipe(map(res => res.data))
         .pipe(map(transformCuratedPodcastsData))
         .pipe(
@@ -101,6 +105,7 @@ export class ListenNotesService {
       this.httpService
         .get<IPodcastDetails>(url)
         .pipe(map(res => res.data))
+        .pipe(map(transformPodcastDetailsData))
         .pipe(
           catchError(() => {
             throw new InternalServerErrorException('Could not fetch podcast')
@@ -114,6 +119,7 @@ export class ListenNotesService {
       this.httpService
         .get<IRecommendations>(`/podcasts/${podcastId}/recommendations`)
         .pipe(map(res => res.data))
+        .pipe(map(transformRecommendationsData))
         .pipe(
           catchError(() => {
             throw new InternalServerErrorException(
