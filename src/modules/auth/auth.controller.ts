@@ -6,7 +6,7 @@ import { SigninDto } from './dto/signin.dto'
 import { AccessTokenGuard } from './guards/access-token.guard'
 import { RefreshTokenGuard } from './guards/refresh-token.guard'
 import { CurrentUser } from './decorators/current-user.decorator'
-import { RequestUser } from './strategies/refresh-token.strategy'
+import { RefreshTokenPayload } from './strategies/refresh-token.strategy'
 import { AccessTokenPayload } from './strategies/access-token.strategy'
 import { clearTokensFromCookies, setTokensToCookies } from './auth.utils'
 
@@ -42,7 +42,7 @@ export class AuthController {
   @Post('refresh')
   async refreshTokens(
     @Res({ passthrough: true }) res: Response,
-    @CurrentUser() user: RequestUser,
+    @CurrentUser() user: RefreshTokenPayload,
   ) {
     const { userId, refreshToken } = user
     const tokens = await this.authService.refreshTokens(userId, refreshToken)
@@ -52,7 +52,7 @@ export class AuthController {
 
   @UseGuards(AccessTokenGuard)
   @Get('me')
-  me(@CurrentUser() user: RequestUser) {
+  me(@CurrentUser() user: AccessTokenPayload) {
     return this.authService.me(user.userId)
   }
 }

@@ -1,7 +1,8 @@
 import { Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
 import { AccessTokenGuard } from '../auth/guards/access-token.guard'
-import { RequestUser } from '../auth/strategies/refresh-token.strategy'
+import { OptionalAccessTokenGuard } from '../auth/guards/optional-access-token.guard'
+import { AccessTokenPayload } from '../auth/strategies/access-token.strategy'
 import { ListenNotesService } from './listenNotes.service'
 import { PodcastsService } from './podcasts.service'
 
@@ -12,31 +13,33 @@ export class PodcastsController {
     private readonly podcastsService: PodcastsService,
   ) {}
 
+  @UseGuards(OptionalAccessTokenGuard)
   @Get('best')
-  getBestPodcasts(@Query('page') page: string) {
-    return this.listenNotesService.getBestPodcasts(page)
+  getBestPodcasts(@CurrentUser() user: AccessTokenPayload, @Query('page') page: string) {
+    return this.podcastsService.getBestPodcasts(page, user?.userId)
   }
 
+  @UseGuards(OptionalAccessTokenGuard)
   @Get('curated')
-  getCurated(@Query('page') page: string) {
-    return this.listenNotesService.getCuratedPodcasts(page)
+  getCurated(@CurrentUser() user: AccessTokenPayload, @Query('page') page: string) {
+    return this.podcastsService.getCuratedPodcasts(page, user?.userId)
   }
 
   @UseGuards(AccessTokenGuard)
   @Get('favorites')
-  getFavorites(@CurrentUser() user: RequestUser) {
+  getFavorites(@CurrentUser() user: AccessTokenPayload) {
     return this.podcastsService.getFavorites(user.userId)
   }
 
   @UseGuards(AccessTokenGuard)
   @Post('favorites/:id')
-  addToFavorites(@CurrentUser() user: RequestUser, @Param('id') id: string) {
+  addToFavorites(@CurrentUser() user: AccessTokenPayload, @Param('id') id: string) {
     return this.podcastsService.addToFavorites(user.userId, id)
   }
 
   @UseGuards(AccessTokenGuard)
   @Delete('favorites/:id')
-  removeFromFavorites(@CurrentUser() user: RequestUser, @Param('id') id: string) {
+  removeFromFavorites(@CurrentUser() user: AccessTokenPayload, @Param('id') id: string) {
     return this.podcastsService.removeFromFavorites(user.userId, id)
   }
 

@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { HttpService } from '@nestjs/axios'
 import { catchError, map, lastValueFrom } from 'rxjs'
+import { transformBestPodcastData, transformCuratedPodcastsData } from './podcasts.utils'
 
 export interface IPodcast {
   id: string
@@ -8,6 +9,7 @@ export interface IPodcast {
   title: string
   publisher: string
   description: string
+  isFavorite?: boolean
 }
 
 export interface IBestPodcasts {
@@ -65,8 +67,11 @@ export class ListenNotesService {
       this.httpService
         .get<IBestPodcasts>(`/best_podcasts?page=${page}`)
         .pipe(map(res => res.data))
+        .pipe(map(transformBestPodcastData))
         .pipe(
-          catchError(() => {
+          catchError((err: any) => {
+            console.log(err)
+
             throw new InternalServerErrorException('Could not fetch best podcasts')
           }),
         ),
@@ -78,6 +83,7 @@ export class ListenNotesService {
       this.httpService
         .get<ICuratedPodcasts>(`curated_podcasts?page=${page}`)
         .pipe(map(res => res.data))
+        .pipe(map(transformCuratedPodcastsData))
         .pipe(
           catchError(() => {
             throw new InternalServerErrorException('Could not fetch curated podcasts')

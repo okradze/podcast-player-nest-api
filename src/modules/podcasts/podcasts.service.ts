@@ -2,7 +2,12 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/sequelize'
 import { FavoritePodcast } from './models/favorite-podcast.model'
 import { Podcast } from './models/podcast.model'
-import { ListenNotesService } from './listenNotes.service'
+import {
+  IBestPodcasts,
+  ICuratedPodcasts,
+  ListenNotesService,
+} from './listenNotes.service'
+import { transformFavorites } from './podcasts.utils'
 
 @Injectable()
 export class PodcastsService {
@@ -13,12 +18,43 @@ export class PodcastsService {
     private readonly listenNotesService: ListenNotesService,
   ) {}
 
-  getFavorites(userId: number) {
-    return this.favoritePodcastModel.findAll({
+  async getBestPodcasts(
+    page: string,
+    userId: number | undefined,
+  ): Promise<IBestPodcasts> {
+    const data = await this.listenNotesService.getBestPodcasts(page)
+
+    data.podcasts = await Promise.all(
+      data.podcasts.map(async podcast => {
+        if (userId) {
+          const favoritePodcast = await this.favoritePodcastModel.findOne({
+            where: { podcastId: podcast.id, userId },
+          })
+          podcast.isFavorite = !!favoritePodcast
+        }
+        return podcast
+      }),
+    )
+
+    return data
+  }
+
+  async getCuratedPodcasts(
+    page: string,
+    userId: number | undefined,
+  ): Promise<ICuratedPodcasts> {
+    const data = await this.listenNotesService.getCuratedPodcasts(page)
+    return data
+  }
+
+  async getFavorites(userId: number) {
+    const favorites = await this.favoritePodcastModel.findAll({
       where: { userId },
       order: [['createdAt', 'DESC']],
       include: Podcast,
     })
+
+    return transformFavorites(favorites)
   }
 
   async addToFavorites(userId: number, podcastId: string) {
