@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common'
 import { Response } from 'express'
 import { SignupDto } from './dto/signup.dto'
 import { AuthService } from './auth.service'
@@ -15,6 +24,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
+  @HttpCode(HttpStatus.CREATED)
   async signup(@Res({ passthrough: true }) res: Response, @Body() body: SignupDto) {
     const { tokens, user } = await this.authService.signup(body)
     setTokensToCookies(res, tokens)
@@ -22,6 +32,7 @@ export class AuthController {
   }
 
   @Post('signin')
+  @HttpCode(HttpStatus.OK)
   async signin(@Res({ passthrough: true }) res: Response, @Body() body: SigninDto) {
     const { tokens, user } = await this.authService.signin(body)
     setTokensToCookies(res, tokens)
@@ -30,6 +41,7 @@ export class AuthController {
 
   @UseGuards(AccessTokenGuard)
   @Post('signout')
+  @HttpCode(HttpStatus.OK)
   signout(
     @Res({ passthrough: true }) res: Response,
     @CurrentUser() user: AccessTokenPayload,
@@ -40,6 +52,7 @@ export class AuthController {
 
   @UseGuards(RefreshTokenGuard)
   @Post('refresh')
+  @HttpCode(HttpStatus.OK)
   async refreshTokens(
     @Res({ passthrough: true }) res: Response,
     @CurrentUser() user: RefreshTokenPayload,

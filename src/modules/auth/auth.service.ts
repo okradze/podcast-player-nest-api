@@ -65,10 +65,10 @@ export class AuthService {
 
   async signin(body: SigninDto) {
     const user = await this.usersService.findByEmail(body.email)
-    if (!user) throw new UnauthorizedException('Invalid credentials')
+    if (!user) throw new BadRequestException('Invalid credentials')
 
     const isMatch = await compareHashToData(user.password, body.password)
-    if (!isMatch) throw new UnauthorizedException('Invalid credentials')
+    if (!isMatch) throw new BadRequestException('Invalid credentials')
 
     const tokens = await this.signTokens(user.id)
     await this.updateUserRefreshToken(user.id, tokens.refreshToken)
