@@ -8,6 +8,7 @@ import {
   IRecommendations,
 } from './listenNotes.service'
 import { FavoritePodcast } from './models/favorite-podcast.model'
+import { Podcast } from './models/podcast.model'
 
 const transformPodcasts = (data: IPodcast[]): IPodcast[] =>
   data.map(({ id, thumbnail, title, publisher }) => ({
@@ -49,11 +50,17 @@ export const transformCuratedPodcastsData = ({
   curated_lists: curated_lists.map(transformCuratedPodcastListData),
 })
 
+export const transformFavorite = ({
+  id,
+  title,
+  publisher,
+  thumbnail,
+}: Podcast): IPodcast => {
+  return { id, title, publisher, thumbnail, isFavorite: true }
+}
+
 export const transformFavorites = (favorites: FavoritePodcast[]) =>
-  favorites.map(favorite => {
-    const { id, title, publisher, thumbnail } = favorite.podcast
-    return { id, title, publisher, thumbnail, isFavorite: true }
-  })
+  favorites.map(favorite => transformFavorite(favorite.podcast))
 
 export const transformEpisodeData = ({
   id,

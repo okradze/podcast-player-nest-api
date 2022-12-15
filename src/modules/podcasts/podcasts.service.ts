@@ -8,7 +8,7 @@ import {
   IPodcast,
   ListenNotesService,
 } from './listenNotes.service'
-import { transformFavorites } from './podcasts.utils'
+import { transformFavorite, transformFavorites } from './podcasts.utils'
 
 @Injectable()
 export class PodcastsService {
@@ -87,7 +87,7 @@ export class PodcastsService {
   }
 
   async addToFavorites(userId: number, podcastId: string) {
-    const podcast = await this.podcastModel.findByPk(podcastId)
+    let podcast = await this.podcastModel.findByPk(podcastId)
     const favoritePodcast = await this.favoritePodcastModel.findOne({
       where: { userId, podcastId },
     })
@@ -98,10 +98,12 @@ export class PodcastsService {
       const { id, title, publisher, thumbnail } =
         await this.listenNotesService.getPodcast(podcastId)
 
-      await this.podcastModel.create({ id, title, thumbnail, publisher })
+      podcast = await this.podcastModel.create({ id, title, thumbnail, publisher })
     }
 
-    return this.favoritePodcastModel.create({ userId, podcastId })
+    await this.favoritePodcastModel.create({ userId, podcastId })
+
+    return transformFavorite(podcast)
   }
 
   async removeFromFavorites(userId: number, podcastId: string) {
