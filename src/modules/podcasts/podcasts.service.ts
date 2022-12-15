@@ -5,6 +5,7 @@ import { Podcast } from './models/podcast.model'
 import {
   IBestPodcasts,
   ICuratedPodcasts,
+  IPodcast,
   ListenNotesService,
 } from './listenNotes.service'
 import { transformFavorites } from './podcasts.utils'
@@ -18,23 +19,25 @@ export class PodcastsService {
     private readonly listenNotesService: ListenNotesService,
   ) {}
 
+  async populateFavoritePodcast(podcast: IPodcast, userId: number) {
+    const favoritePodcast = await this.favoritePodcastModel.findOne({
+      where: { podcastId: podcast.id, userId },
+    })
+    podcast.isFavorite = !!favoritePodcast
+    return podcast
+  }
+
   async getBestPodcasts(
     page: string,
     userId: number | undefined,
   ): Promise<IBestPodcasts> {
     const data = await this.listenNotesService.getBestPodcasts(page)
 
-    data.podcasts = await Promise.all(
-      data.podcasts.map(async podcast => {
-        if (userId) {
-          const favoritePodcast = await this.favoritePodcastModel.findOne({
-            where: { podcastId: podcast.id, userId },
-          })
-          podcast.isFavorite = !!favoritePodcast
-        }
-        return podcast
-      }),
-    )
+    if (userId) {
+      data.podcasts = await Promise.all(
+        data.podcasts.map(podcast => this.populateFavoritePodcast(podcast, userId)),
+      )
+    }
 
     return data
   }
@@ -44,6 +47,32 @@ export class PodcastsService {
     userId: number | undefined,
   ): Promise<ICuratedPodcasts> {
     const data = await this.listenNotesService.getCuratedPodcasts(page)
+
+    if (userId) {
+      data.curated_lists = await Promise.all(
+        data.curated_lists.map(async list => {
+          list.podcasts = await Promise.all(
+            list.podcasts.map(podcast => this.populateFavoritePodcast(podcast, userId)),
+          )
+          return list
+        }),
+      )
+    }
+
+    return data
+  }
+
+  async getPodcastRecommendations(id: string, userId: number | undefined) {
+    const data = await this.listenNotesService.getPodcastRecommendations(id)
+
+    if (userId) {
+      data.recommendations = await Promise.all(
+        data.recommendations.map(podcast =>
+          this.populateFavoritePodcast(podcast, userId),
+        ),
+      )
+    }
+
     return data
   }
 

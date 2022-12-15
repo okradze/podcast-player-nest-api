@@ -51,9 +51,13 @@ export class PodcastsController {
     return this.listenNotesService.getPodcast(id, nextEpisodePubDate)
   }
 
+  @UseGuards(OptionalAccessTokenGuard)
   @Get(':id/recommendations')
-  getPodcastRecommendations(@Param('id') id: string) {
-    return this.listenNotesService.getPodcastRecommendations(id)
+  getPodcastRecommendations(
+    @CurrentUser() user: AccessTokenPayload,
+    @Param('id') id: string,
+  ) {
+    return this.podcastsService.getPodcastRecommendations(id, user?.userId)
   }
 
   @Get('typeahead')
