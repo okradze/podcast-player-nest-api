@@ -1,10 +1,11 @@
-import { Table, Column, Model, ForeignKey, BelongsTo } from 'sequelize-typescript'
+import { Table, Column, Model, ForeignKey, BelongsTo, Index } from 'sequelize-typescript'
 import { Podcast } from './podcast.model'
 import { User } from '../../users/user.model'
 
 @Table
 export class FavoritePodcast extends Model<FavoritePodcast> {
   @ForeignKey(() => Podcast)
+  @Index
   @Column
   podcastId: string
 
@@ -12,6 +13,7 @@ export class FavoritePodcast extends Model<FavoritePodcast> {
   podcast: Podcast
 
   @ForeignKey(() => User)
+  @Index
   @Column
   userId: number
 
