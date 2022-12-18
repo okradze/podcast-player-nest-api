@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Res,
   UseGuards,
@@ -18,6 +19,8 @@ import { CurrentUser } from './decorators/current-user.decorator'
 import { RefreshTokenPayload } from './strategies/refresh-token.strategy'
 import { AccessTokenPayload } from './strategies/access-token.strategy'
 import { clearTokensFromCookies, setTokensToCookies } from './auth.utils'
+import { ForgotPasswordDto } from './dto/forgot-password.dto'
+import { ResetPasswordDto } from './dto/reset-password.dto'
 
 @Controller('auth')
 export class AuthController {
@@ -67,5 +70,15 @@ export class AuthController {
   @Get('me')
   me(@CurrentUser() user: AccessTokenPayload) {
     return this.authService.me(user.userId)
+  }
+
+  @Post('forgot-password')
+  forgotPassword(@Body() body: ForgotPasswordDto) {
+    return this.authService.forgotPassword(body.email)
+  }
+
+  @Post('reset-password/:token')
+  resetPassword(@Param('token') token: string, @Body() body: ResetPasswordDto) {
+    return this.authService.resetPassword(token, body.password)
   }
 }

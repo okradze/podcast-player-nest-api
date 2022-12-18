@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
@@ -99,5 +100,46 @@ export class AuthService {
   async me(userId: number) {
     const user = await this.usersService.findById(userId)
     return user
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.usersService.findByEmail(email)
+    if (!user) throw new NotFoundException('User not found with associated email')
+
+    const token = await this.jwtService.signAsync(
+      { userId: user.id },
+      {
+        secret: this.configService.get('JWT_RESET_PASSWORD_SECRET'),
+        expiresIn: '30m',
+      },
+    )
+
+    const hashedToken = await hashData(token)
+    user.resetPasswordToken = hashedToken
+    await user.save()
+
+    return { token }
+  }
+
+  async resetPassword(token: string, password: string) {
+    const { userId } = await this.jwtService
+      .verifyAsync(token, {
+        secret: this.configService.get('JWT_RESET_PASSWORD_SECRET'),
+      })
+      .catch(() => {
+        throw new UnauthorizedException('Token is invalid')
+      })
+
+    const user = await this.usersService.findById(userId)
+    if (!user) throw new NotFoundException('User not found')
+    if (!user.resetPasswordToken) throw new UnauthorizedException('Token is invalid')
+
+    const isMatch = await compareHashToData(user.resetPasswordToken, token)
+    if (!isMatch) throw new UnauthorizedException('Token is invalid')
+
+    const hashedPassword = await hashData(password)
+    user.password = hashedPassword
+    user.resetPasswordToken = null
+    await user.save()
   }
 }
