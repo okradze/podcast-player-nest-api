@@ -11,13 +11,15 @@ import { UsersService } from '../users/users.service'
 import { compareHashToData, hashData } from './auth.utils'
 import { SigninDto } from './dto/signin.dto'
 import { SignupDto } from './dto/signup.dto'
+import { MailService } from '../mail/mail.service'
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private readonly mailService: MailService,
   ) {}
 
   async signTokens(userId: number) {
@@ -118,7 +120,8 @@ export class AuthService {
     user.resetPasswordToken = hashedToken
     await user.save()
 
-    return { token }
+    const url = `http://localhost:3000/auth/reset-password?token=${token}`
+    await this.mailService.sendResetPassword(url, user.email, user.fullName)
   }
 
   async resetPassword(token: string, password: string) {
