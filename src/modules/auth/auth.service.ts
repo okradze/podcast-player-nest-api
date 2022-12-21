@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
@@ -12,6 +11,7 @@ import { compareHashToData, hashData } from './auth.utils'
 import { SigninDto } from './dto/signin.dto'
 import { SignupDto } from './dto/signup.dto'
 import { MailService } from '../mail/mail.service'
+import { User } from '../users/user.model'
 
 @Injectable()
 export class AuthService {
@@ -106,7 +106,7 @@ export class AuthService {
 
   async forgotPassword(email: string) {
     const user = await this.usersService.findByEmail(email)
-    if (!user) throw new NotFoundException('User not found with associated email')
+    if (!user) return
 
     const token = await this.jwtService.signAsync(
       { userId: user.id },
@@ -120,11 +120,11 @@ export class AuthService {
     user.resetPasswordToken = hashedToken
     await user.save()
 
-    const url = `http://localhost:3000/auth/reset-password?token=${token}`
+    const url = `http://localhost:3000/auth/reset-password/${token}`
     await this.mailService.sendResetPassword(url, user.email, user.fullName)
   }
 
-  async resetPassword(token: string, password: string) {
+  async validateResetPasswordToken(token: string): Promise<User> {
     const { userId } = await this.jwtService
       .verifyAsync(token, {
         secret: this.configService.get('JWT_RESET_PASSWORD_SECRET'),
@@ -134,15 +134,25 @@ export class AuthService {
       })
 
     const user = await this.usersService.findById(userId)
-    if (!user) throw new NotFoundException('User not found')
-    if (!user.resetPasswordToken) throw new UnauthorizedException('Token is invalid')
+    if (!user?.resetPasswordToken) throw new UnauthorizedException('Token is invalid')
 
     const isMatch = await compareHashToData(user.resetPasswordToken, token)
     if (!isMatch) throw new UnauthorizedException('Token is invalid')
+
+    return user
+  }
+
+  async resetPassword(token: string, password: string) {
+    const user = await this.validateResetPasswordToken(token)
 
     const hashedPassword = await hashData(password)
     user.password = hashedPassword
     user.resetPasswordToken = null
     await user.save()
+  }
+
+  async getResetPasswordUser(token: string) {
+    const user = await this.validateResetPasswordToken(token)
+    return { fullName: user.fullName }
   }
 }
