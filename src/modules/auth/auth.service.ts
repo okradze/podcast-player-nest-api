@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
@@ -102,6 +103,24 @@ export class AuthService {
   async me(userId: number) {
     const user = await this.usersService.findById(userId)
     return user
+  }
+
+  async updateUser(userId: number, fullName: string) {
+    const user = await this.usersService.findById(userId)
+    if (!user) throw new NotFoundException('User not found')
+    await user.update({ fullName })
+    return user
+  }
+
+  async changePassword(userId: number, currentPassword: string, password: string) {
+    const user = await this.usersService.findById(userId)
+    if (!user) throw new NotFoundException('User not found')
+
+    const isMatch = await compareHashToData(user.password, currentPassword)
+    if (!isMatch) throw new BadRequestException('Invalid password')
+
+    const hashedPassword = await hashData(password)
+    await user.update({ password: hashedPassword })
   }
 
   async forgotPassword(email: string) {

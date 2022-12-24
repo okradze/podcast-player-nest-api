@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Res,
   UseGuards,
@@ -21,6 +22,8 @@ import { AccessTokenPayload } from './strategies/access-token.strategy'
 import { clearTokensFromCookies, setTokensToCookies } from './auth.utils'
 import { ForgotPasswordDto } from './dto/forgot-password.dto'
 import { ResetPasswordDto } from './dto/reset-password.dto'
+import { ChangePasswordDto } from './dto/change-password.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
 
 @Controller('auth')
 export class AuthController {
@@ -70,6 +73,25 @@ export class AuthController {
   @Get('me')
   me(@CurrentUser() user: AccessTokenPayload) {
     return this.authService.me(user.userId)
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Patch('update-user')
+  updateUser(@CurrentUser() user: AccessTokenPayload, @Body() body: UpdateUserDto) {
+    return this.authService.updateUser(user.userId, body.fullName)
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Post('change-password')
+  changePassword(
+    @CurrentUser() user: AccessTokenPayload,
+    @Body() body: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(
+      user.userId,
+      body.currentPassword,
+      body.password,
+    )
   }
 
   @Post('forgot-password')
