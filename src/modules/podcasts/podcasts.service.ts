@@ -6,6 +6,7 @@ import {
   IBestPodcasts,
   ICuratedPodcasts,
   IPodcast,
+  IPodcastDetails,
   ListenNotesService,
 } from './listenNotes.service'
 import { transformFavorite, transformFavorites } from './podcasts.utils'
@@ -19,7 +20,7 @@ export class PodcastsService {
     private readonly listenNotesService: ListenNotesService,
   ) {}
 
-  async populateFavoritePodcast(podcast: IPodcast, userId: number) {
+  async populateFavoritePodcast(podcast: IPodcast | IPodcastDetails, userId: number) {
     const favoritePodcast = await this.favoritePodcastModel.findOne({
       where: { podcastId: podcast.id, userId },
     })
@@ -60,6 +61,12 @@ export class PodcastsService {
     }
 
     return data
+  }
+
+  async getPodcast(id: string, nextEpisodePubDate?: string, userId?: number) {
+    const podcast = await this.listenNotesService.getPodcast(id, nextEpisodePubDate)
+    if (userId) return this.populateFavoritePodcast(podcast, userId)
+    return podcast
   }
 
   async getPodcastRecommendations(id: string, userId: number | undefined) {

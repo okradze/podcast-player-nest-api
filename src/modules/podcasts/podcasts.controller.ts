@@ -48,12 +48,14 @@ export class PodcastsController {
     return this.podcastsService.removeFromFavorites(user.userId, id)
   }
 
+  @UseGuards(OptionalAccessTokenGuard)
   @Get(':id')
   getPodcast(
+    @CurrentUser() user: AccessTokenPayload,
     @Param('id') id: string,
     @Query('nextEpisodePubDate') nextEpisodePubDate?: string,
   ) {
-    return this.listenNotesService.getPodcast(id, nextEpisodePubDate)
+    return this.podcastsService.getPodcast(id, nextEpisodePubDate, user?.userId)
   }
 
   @UseGuards(OptionalAccessTokenGuard)
