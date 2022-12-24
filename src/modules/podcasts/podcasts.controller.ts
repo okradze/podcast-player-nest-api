@@ -25,6 +25,11 @@ export class PodcastsController {
     return this.podcastsService.getCuratedPodcasts(page, user?.userId)
   }
 
+  @Get('typeahead')
+  getTypeahead(@Query('q') searchTerm: string) {
+    return this.listenNotesService.getTypeahead(searchTerm)
+  }
+
   @UseGuards(AccessTokenGuard)
   @Get('favorites')
   getFavorites(@CurrentUser() user: AccessTokenPayload) {
@@ -58,10 +63,5 @@ export class PodcastsController {
     @Param('id') id: string,
   ) {
     return this.podcastsService.getPodcastRecommendations(id, user?.userId)
-  }
-
-  @Get('typeahead')
-  getTypeahead(@Query('q') searchTerm: string) {
-    return this.listenNotesService.getTypeahead(searchTerm)
   }
 }
