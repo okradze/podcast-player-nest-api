@@ -1,6 +1,6 @@
 import { IsEmail, MinLength } from 'class-validator'
 
-export class SigninDto {
+export class SignInDto {
   @IsEmail()
   email: string
 

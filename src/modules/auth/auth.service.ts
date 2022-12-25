@@ -9,8 +9,8 @@ import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import { UsersService } from '../users/users.service'
 import { compareHashToData, hashData } from './auth.utils'
-import { SigninDto } from './dto/signin.dto'
-import { SignupDto } from './dto/signup.dto'
+import { SignInDto } from './dto/sign-in.dto'
+import { SignUpDto } from './dto/sign-up.dto'
 import { MailService } from '../mail/mail.service'
 import { User } from '../users/user.model'
 
@@ -49,7 +49,7 @@ export class AuthService {
     await this.usersService.update(userId, { refreshToken: hashedToken })
   }
 
-  async signup(body: SignupDto) {
+  async signUp(body: SignUpDto) {
     const { email, password } = body
 
     const userAlreadyExists = await this.usersService.findByEmail(email)
@@ -67,7 +67,7 @@ export class AuthService {
     }
   }
 
-  async signin(body: SigninDto) {
+  async signIn(body: SignInDto) {
     const user = await this.usersService.findByEmail(body.email)
     if (!user) throw new BadRequestException('Invalid credentials')
 
@@ -83,7 +83,7 @@ export class AuthService {
     }
   }
 
-  async signout(userId: number) {
+  async signOut(userId: number) {
     await this.usersService.update(userId, { refreshToken: null })
   }
 

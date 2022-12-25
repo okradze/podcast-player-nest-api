@@ -11,9 +11,9 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { Response } from 'express'
-import { SignupDto } from './dto/signup.dto'
 import { AuthService } from './auth.service'
-import { SigninDto } from './dto/signin.dto'
+import { SignUpDto } from './dto/sign-up.dto'
+import { SignInDto } from './dto/sign-in.dto'
 import { AccessTokenGuard } from './guards/access-token.guard'
 import { RefreshTokenGuard } from './guards/refresh-token.guard'
 import { CurrentUser } from './decorators/current-user.decorator'
@@ -29,31 +29,31 @@ import { UpdateUserDto } from './dto/update-user.dto'
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('signup')
+  @Post('sign-up')
   @HttpCode(HttpStatus.CREATED)
-  async signup(@Res({ passthrough: true }) res: Response, @Body() body: SignupDto) {
-    const { tokens, user } = await this.authService.signup(body)
+  async signUp(@Res({ passthrough: true }) res: Response, @Body() body: SignUpDto) {
+    const { tokens, user } = await this.authService.signUp(body)
     setTokensToCookies(res, tokens)
     return user
   }
 
-  @Post('signin')
+  @Post('sign-in')
   @HttpCode(HttpStatus.OK)
-  async signin(@Res({ passthrough: true }) res: Response, @Body() body: SigninDto) {
-    const { tokens, user } = await this.authService.signin(body)
+  async signIn(@Res({ passthrough: true }) res: Response, @Body() body: SignInDto) {
+    const { tokens, user } = await this.authService.signIn(body)
     setTokensToCookies(res, tokens)
     return user
   }
 
   @UseGuards(AccessTokenGuard)
-  @Post('signout')
+  @Post('sign-out')
   @HttpCode(HttpStatus.OK)
-  signout(
+  signOut(
     @Res({ passthrough: true }) res: Response,
     @CurrentUser() user: AccessTokenPayload,
   ) {
     clearTokensFromCookies(res)
-    return this.authService.signout(user.userId)
+    return this.authService.signOut(user.userId)
   }
 
   @UseGuards(RefreshTokenGuard)

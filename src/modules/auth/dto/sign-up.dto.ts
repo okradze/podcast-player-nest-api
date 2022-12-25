@@ -1,6 +1,6 @@
 import { IsEmail, Length } from 'class-validator'
 
-export class SignupDto {
+export class SignUpDto {
   @Length(2, 255)
   fullName: string
 
