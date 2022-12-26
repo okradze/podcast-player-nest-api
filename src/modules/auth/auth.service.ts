@@ -13,6 +13,7 @@ import { SignInDto } from './dto/sign-in.dto'
 import { SignUpDto } from './dto/sign-up.dto'
 import { MailService } from '../mail/mail.service'
 import { User } from '../users/user.model'
+import { transformUser } from '../users/users.utils'
 
 @Injectable()
 export class AuthService {
@@ -63,7 +64,7 @@ export class AuthService {
 
     return {
       tokens,
-      user,
+      user: transformUser(user),
     }
   }
 
@@ -79,7 +80,7 @@ export class AuthService {
 
     return {
       tokens,
-      user,
+      user: transformUser(user),
     }
   }
 
@@ -102,14 +103,14 @@ export class AuthService {
 
   async me(userId: number) {
     const user = await this.usersService.findById(userId)
-    return user
+    return transformUser(user)
   }
 
   async updateUser(userId: number, fullName: string) {
     const user = await this.usersService.findById(userId)
     if (!user) throw new NotFoundException('User not found')
     await user.update({ fullName })
-    return user
+    return transformUser(user)
   }
 
   async changePassword(userId: number, currentPassword: string, password: string) {
