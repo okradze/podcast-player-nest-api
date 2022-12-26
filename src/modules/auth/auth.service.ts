@@ -119,7 +119,7 @@ export class AuthService {
     if (!user) throw new NotFoundException('User not found')
 
     const isMatch = await compareHashToData(user.password, currentPassword)
-    if (!isMatch) throw new BadRequestException('Invalid password')
+    if (!isMatch) throw new BadRequestException('Current password is invalid')
 
     const hashedPassword = await hashData(password)
     await user.update({ password: hashedPassword })
