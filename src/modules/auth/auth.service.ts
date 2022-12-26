@@ -54,7 +54,8 @@ export class AuthService {
     const { email, password } = body
 
     const userAlreadyExists = await this.usersService.findByEmail(email)
-    if (userAlreadyExists) throw new BadRequestException('Email in use')
+    if (userAlreadyExists)
+      throw new BadRequestException('User with this email already exists')
 
     const hashedPassword = await hashData(password)
     const user = await this.usersService.create({ ...body, password: hashedPassword })
@@ -70,10 +71,10 @@ export class AuthService {
 
   async signIn(body: SignInDto) {
     const user = await this.usersService.findByEmail(body.email)
-    if (!user) throw new BadRequestException('Invalid credentials')
+    if (!user) throw new BadRequestException('Invalid email or password')
 
     const isMatch = await compareHashToData(user.password, body.password)
-    if (!isMatch) throw new BadRequestException('Invalid credentials')
+    if (!isMatch) throw new BadRequestException('Invalid email or password')
 
     const tokens = await this.signTokens(user.id)
     await this.updateUserRefreshToken(user.id, tokens.refreshToken)
