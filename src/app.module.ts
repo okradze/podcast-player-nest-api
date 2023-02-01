@@ -20,6 +20,12 @@ import { APP_GUARD } from '@nestjs/core'
         models: [User],
         synchronize: true,
         autoLoadModels: true,
+        dialectOptions: {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false,
+          },
+        },
       }),
       inject: [ConfigService],
     }),
