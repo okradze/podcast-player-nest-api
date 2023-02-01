@@ -4,6 +4,11 @@ import helmet from 'helmet'
 import * as cookieParser from 'cookie-parser'
 import { AppModule } from './app.module'
 
+const ORIGIN =
+  process.env.NODE_ENV === 'production'
+    ? 'https://okradze-podcasts.netlify.app'
+    : 'http://localhost:3000'
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
@@ -12,7 +17,7 @@ async function bootstrap() {
   app.use(cookieParser())
 
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: ORIGIN,
   })
 
   app.enableVersioning({
