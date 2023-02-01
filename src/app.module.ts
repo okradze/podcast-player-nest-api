@@ -21,7 +21,7 @@ import { APP_GUARD } from '@nestjs/core'
         synchronize: true,
         autoLoadModels: true,
         dialectOptions: {
-          ssl: {
+          ssl: process.env.NODE_ENV === 'production' && {
             require: true,
             rejectUnauthorized: false,
           },
